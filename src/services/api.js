@@ -11,7 +11,3 @@ export async function exchangerateApi(fromCurrency) {
     
   }
 }
-
-export function convertCurrency(amount, rate){
-  return (parseFloat(amount) * rate).toFixed(2)
-}
