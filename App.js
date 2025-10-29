@@ -53,7 +53,7 @@ export default function App() {
 
           <View style={styles.header}>
             <Text style={styles.title}>
-              Conversor de moedas digital
+              Conversor de moedas
             </Text>
             <Text style={styles.subTitle}>converta valores entre diferentes moedas</Text>
           </View>
