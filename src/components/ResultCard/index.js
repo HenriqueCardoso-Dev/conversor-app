@@ -1,15 +1,20 @@
 import { Text, View } from "react-native";
+import { styles } from "./styles";
 
 export function ResultCard({exchangeRate, result, fromCurrency, toCurrency, currencies}) {
 
   if(!result || !exchangeRate) return null
 
-  return (
-    <View>
-      <Text>Resultado:</Text>
-      <Text>{result}</Text>
+  const toSymbol = currencies.find(currency => currency.code === toCurrency).symbol
 
-      <Text>Taxa de câmbio 1: {fromCurrency}  = {exchangeRate.toFixed(4)}</Text>
+  return (
+    <View style={styles.container}>
+      <Text style={styles.label}>Resultado:</Text>
+      <Text style={styles.amount}>
+        {toSymbol} {result}
+      </Text>
+
+      <Text style={styles.rate}>Taxa de câmbio 1: {fromCurrency}  = {exchangeRate.toFixed(4)} {toCurrency}</Text>
     </View>
   )
 }

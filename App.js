@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {Button} from './src/components/Button';
 import { styles } from './App.styles';
 import { KeyboardAvoidingView } from 'react-native';
@@ -16,21 +16,33 @@ export default function App() {
   const [fromCurrency, setFromCurrency] = useState('USD');
   const [toCurrency, setToCurrency] = useState('BRL');
   const [result, setResult] = useState('');
-  const [loading, setLoading] = useState('');
+  const [loading, setLoading] = useState(false);
   const [exchangeRate, setExchangeRate] = useState(null);
 
   async function handleCurrencyApi() {
-    const data = await exchangerateApi(fromCurrency);
-    setExchangeRate(data.rates[toCurrency])
-    setResult(convertCurrency(amount, exchangeRate))
+
+    try {
+      setLoading(true)
+      
+      if (!amount) return
+  
+      const data = await exchangerateApi(fromCurrency);
+      setExchangeRate(data.rates[toCurrency])
+      setResult(convertCurrency(amount, exchangeRate))
+      
+    } catch (err) {
+      alert("Erro, tente novamente!")
+    } finally {
+      setLoading(false)
+    }
+
   }
 
   function swapCurrency() {
-    const oldFrom = fromCurrency;
-    const oldTo = toCurrency;
-
-    setFromCurrency(oldTo);
-    setToCurrency(oldFrom)
+    setResult('');
+    setAmout('')
+    setFromCurrency(toCurrency);
+    setToCurrency(fromCurrency);
   }
 
   return (
@@ -58,14 +70,20 @@ export default function App() {
                 <Button 
                   key={currency.code} 
                   currency={currency} 
-                  onPress={() => setFromCurrency(currency.code)}
+                  onPress={() => {
+                    setResult('')
+                    setFromCurrency(currency.code)
+                  }}
                   isSelected={fromCurrency === currency.code}
                 ></Button>
               ))}
 
             </View>
 
-            <Input label="Valor:" onChangeText={setAmout} value={amount}/>
+            <Input label="Valor:" onChangeText={(value) => {
+              setResult('')
+              setAmout(value)
+            }} value={amount}/>
 
             <TouchableOpacity style={styles.swapButton} onPress={swapCurrency}>
               <Text style={styles.swapButtonText}>
@@ -82,7 +100,10 @@ export default function App() {
                   key={currency.code} 
                   currency={currency} 
                   variant='secondary' 
-                  onPress={() => setToCurrency(currency.code)} 
+                  onPress={() => {
+                    setResult('')
+                    setToCurrency(currency.code)
+                  }} 
                   isSelected={toCurrency === currency.code}
                 ></Button>
               ))}
@@ -90,10 +111,17 @@ export default function App() {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.convertButton} onPress={handleCurrencyApi}>
-            <Text style={styles.swapButtonText}>
-              Converter
-            </Text>
+          <TouchableOpacity style={[styles.convertButton, (!amount || loading) && styles.convertButtonDisabled]} onPress={handleCurrencyApi} disabled={!amount || loading}>
+            {
+              loading ? (
+                <ActivityIndicator color="white"/>
+              ) : (
+                <Text style={styles.swapButtonText}>
+                  Converter
+                </Text>
+              )
+            }
+            
           </TouchableOpacity>
 
           <ResultCard
